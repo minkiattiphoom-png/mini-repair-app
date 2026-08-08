@@ -18,6 +18,7 @@ import QRCodeAdminPage from './pages/QRCodeAdminPage';
 import WarrantyAdminPage from './pages/WarrantyAdminPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
+import QRScannerPage from './pages/QRScannerPage';
 
 const pageTitles: Record<AdminPage, string> = {
   dashboard:          'แดชบอร์ด',
@@ -104,12 +105,12 @@ export default function App() {
   if (section === 'public') {
 
   if (publicPage === 'scanner') {
-    return (
-      <div>
-        หน้าสแกน QR
-      </div>
-    );
-  }
+  return (
+    <QRScannerPage
+      onBack={() => setPublicPage('home')}
+    />
+  );
+}
 
   if (publicPage === 'status') {
     return (
