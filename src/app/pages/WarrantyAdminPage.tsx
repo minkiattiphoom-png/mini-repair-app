@@ -185,10 +185,10 @@ export default function WarrantyAdminPage({ jobs }: Props) {
 
             <div className="flex justify-center p-3 bg-white border border-border rounded-xl mb-4">
               <QRCode
-                value={`MINIREPAIR:WARRANTY:${qrJob.jobNumber}:${qrJob.warrantyExpiry}`}
-                size={180}
-                fgColor="#0F172A"
-              />
+                value={`https://mini-repair-app.vercel.app/?job=${encodeURIComponent(qrJob.jobNumber)}`}
+                    size={180}
+                    fgColor="#0F172A"
+                />
             </div>
 
             <button

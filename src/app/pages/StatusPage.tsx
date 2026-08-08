@@ -24,8 +24,17 @@ const stepIcons: Record<RepairStatus, React.ElementType> = {
 export default function StatusPage({ jobs, onBack, initialJobId }: Props) {
   const [query, setQuery] = useState(initialJobId ?? '');
   const [result, setResult] = useState<RepairJob | null | 'not-found'>(
-    initialJobId ? (jobs.find(j => j.jobNumber === initialJobId || j.qrToken === initialJobId) ?? 'not-found') : null
-  );
+  initialJobId
+    ? (
+        jobs.find(
+          j =>
+            j.id === initialJobId ||
+            j.jobNumber.toLowerCase() === initialJobId.toLowerCase() ||
+            j.qrToken === initialJobId
+        ) ?? 'not-found'
+      )
+    : null
+);
   const [searched, setSearched] = useState(!!initialJobId);
 
   const handleSearch = () => {

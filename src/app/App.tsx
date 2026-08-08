@@ -33,7 +33,6 @@ const pageTitles: Record<AdminPage, string> = {
 };
 
 export default function App() {
-  const urlJobNumber = new URLSearchParams(window.location.search).get('job');
 
   const [section, setSection] = useState<
     'public' | 'login' | 'admin'
@@ -54,13 +53,6 @@ export default function App() {
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
 
   const [customers] = useState(mockCustomers);
-
-  const statusJobId = urlJobNumber
-    ? jobs.find(
-        job =>
-          job.jobNumber.toLowerCase() === urlJobNumber.toLowerCase()
-      )?.id
-    : undefined;
 
   const addJob = (job: RepairJob) => setJobs(prev => [job, ...prev]);
 
@@ -96,6 +88,11 @@ export default function App() {
   const goAdmin = () => setSection('login');
   const goPublic = () => { setSection('public'); setPublicPage('home'); };
 
+  const handleScanQR = () => {
+    setSection('public');
+    setPublicPage('status');
+  };
+
   const goRepairDetail = (id: string) => {
     setSelectedJobId(id);
     setAdminPage('repair-detail');
@@ -108,7 +105,6 @@ export default function App() {
         <StatusPage
           jobs={jobs}
           onBack={() => setPublicPage('home')}
-          initialJobId={statusJobId}
         />
       );
     }
@@ -127,6 +123,8 @@ export default function App() {
         onCheckStatus={() => setPublicPage('status')}
         onCheckWarranty={() => setPublicPage('warranty')}
         onAdminLogin={goAdmin}
+        onScanQR={handleScanQR}
+        onGoAdmin={goAdmin}
       />
     );
   }

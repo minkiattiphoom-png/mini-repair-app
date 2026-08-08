@@ -4,6 +4,8 @@ interface Props {
   onScanQR: () => void;
   onCheckStatus: () => void;
   onGoAdmin: () => void;
+  onCheckWarranty: () => void;
+  onAdminLogin: () => void;
 }
 
 const features = [
@@ -75,13 +77,10 @@ export default function HomePage({ onScanQR, onCheckStatus, onGoAdmin }: Props) 
             </div>
           </button>
 
-          <button
-            onClick={onCheckStatus}
-            className="mt-5 w-full flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl text-sm font-medium transition-colors"
-          >
-            <Smartphone className="w-4 h-4 flex-shrink-0" />
-            <span>เปิดกล้องแล้วสแกน QR Code ที่ได้รับจากร้าน</span>
-          </button>
+          <div className="mt-5 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Smartphone className="w-4 h-4 flex-shrink-0" />
+              <span>เปิดกล้องแล้วสแกน QR Code ที่ได้รับจากร้าน</span>
+          </div>
         </div>
 
         {/* Quick check status */}
