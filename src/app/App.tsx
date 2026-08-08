@@ -116,6 +116,7 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   if (urlJobNumber && urlQRToken) {
     return (
       <RepairHistoryPage
+        jobs={jobs}
         qrToken={urlQRToken}
         onBack={() => {
           window.history.pushState({}, '', '/');
@@ -139,6 +140,7 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
 if (publicPage === 'history') {
   return (
     <RepairHistoryPage
+      jobs={jobs}
       qrToken={scannedQR ?? ''}
       onBack={() => {
         setScannedQR(null);

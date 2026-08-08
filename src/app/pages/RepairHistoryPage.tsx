@@ -12,7 +12,7 @@ import type { RepairJob, RepairStatus } from '../types';
 import StatusBadge from '../components/StatusBadge';
 
 interface Props {
-  jobs: RepairJob[];
+  jobs?: RepairJob[];
   qrToken: string;
   jobNumber?: string;
   onBack: () => void;
@@ -35,11 +35,11 @@ export default function RepairHistoryPage({
   jobNumber,
   onBack,
 }: Props) {
-  const result = jobs.find(
-    job =>
-      job.qrToken === qrToken &&
-      (!jobNumber || job.jobNumber === jobNumber)
-  );
+  const result = jobs?.find(
+  job =>
+    job.qrToken === qrToken &&
+    (!jobNumber || job.jobNumber === jobNumber)
+);
 
   if (!result) {
     return (
