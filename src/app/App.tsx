@@ -52,8 +52,6 @@ export default function App() {
 
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
-  const [scannedJobId, setScannedJobId] = useState<string | null>(null);
-
   const [scannedQR, setScannedQR] = useState<string | null>(null);
 
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
@@ -61,6 +59,14 @@ export default function App() {
   const [customers] = useState(mockCustomers);
 
   const addJob = (job: RepairJob) => setJobs(prev => [job, ...prev]);
+
+  const pathname = window.location.pathname;
+  const repairUrlMatch = pathname.match(
+  /^\/repair\/([^/]+)\/([^/]+)$/
+);
+
+const urlJobNumber = repairUrlMatch?.[1] ?? null;
+const urlQRToken = repairUrlMatch?.[2] ?? null;
 
   const updateJobStatus = (id: string, status: RepairStatus) =>
     setJobs(prev => prev.map(j =>
@@ -106,7 +112,18 @@ export default function App() {
 
   // ── Public routes ──────────────────────────────────────────────────────────
   if (section === 'public') {
-
+ // เปิดจาก QR URL โดยตรง
+  if (urlJobNumber && urlQRToken) {
+    return (
+      <RepairHistoryPage
+        qrToken={urlQRToken}
+        onBack={() => {
+          window.history.pushState({}, '', '/');
+          setPublicPage('home');
+        }}
+      />
+    );
+  }
   if (publicPage === 'scanner') {
   return (
     <QRScannerPage
