@@ -19,6 +19,7 @@ import WarrantyAdminPage from './pages/WarrantyAdminPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import QRScannerPage from './pages/QRScannerPage';
+import RepairHistoryPage from './pages/RepairHistoryPage';
 
 const pageTitles: Record<AdminPage, string> = {
   dashboard:          'แดชบอร์ด',
@@ -40,7 +41,7 @@ export default function App() {
   >('public');
 
   const [publicPage, setPublicPage] = useState<
-  'home' | 'status' | 'warranty' | 'scanner'
+  'home' | 'status' | 'warranty' | 'scanner' | 'history'
 >('home');
 
   const [adminPage, setAdminPage] = useState<AdminPage>('dashboard');
@@ -112,8 +113,20 @@ export default function App() {
       onBack={() => setPublicPage('home')}
       onScan={(value) => {
         setScannedQR(value);
-        setPublicPage('status');
+        setPublicPage('history');
   }}
+    />
+  );
+}
+
+if (publicPage === 'history') {
+  return (
+    <RepairHistoryPage
+      qrToken={scannedQR ?? ''}
+      onBack={() => {
+        setScannedQR(null);
+        setPublicPage('home');
+      }}
     />
   );
 }
