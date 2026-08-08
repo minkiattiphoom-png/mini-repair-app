@@ -1,10 +1,83 @@
-import { ArrowLeft, QrCode } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, Camera, AlertCircle } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 
 interface Props {
   onBack: () => void;
+  onScan: (value: string) => void;
 }
 
-export default function QRScannerPage({ onBack }: Props) {
+export default function QRScannerPage({ onBack, onScan }: Props) {
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+
+  useEffect(() => {
+    const scanner = new Html5Qrcode('qr-reader');
+    scannerRef.current = scanner;
+
+    const startScanner = async () => {
+      try {
+        setError(null);
+
+        const cameras = await Html5Qrcode.getCameras();
+
+        if (!cameras || cameras.length === 0) {
+          setError('ไม่พบกล้องในอุปกรณ์');
+          return;
+        }
+
+        const cameraId = cameras[0].id;
+
+        await scanner.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: {
+              width: 250,
+              height: 250,
+            },
+          },
+          (decodedText) => {
+            onScan(decodedText);
+          },
+          () => {
+            // อ่าน QR ไม่สำเร็จในเฟรมนี้
+            // ไม่ต้องแสดง error เพราะกล้องยังทำงานต่อ
+          }
+        );
+
+        setScanning(true);
+      } catch {
+        setError(
+          'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการใช้กล้องแล้วลองใหม่'
+        );
+      }
+    };
+
+    startScanner();
+
+    return () => {
+      if (scannerRef.current?.isScanning) {
+        scannerRef.current
+          .stop()
+          .catch(() => {});
+      }
+    };
+  }, [onScan]);
+
+  const handleBack = async () => {
+    if (scannerRef.current?.isScanning) {
+      try {
+        await scannerRef.current.stop();
+      } catch {
+        // ไม่ต้องทำอะไร
+      }
+    }
+
+    onBack();
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-lg mx-auto">
@@ -12,7 +85,7 @@ export default function QRScannerPage({ onBack }: Props) {
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-4">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
             aria-label="กลับ"
           >
@@ -24,26 +97,56 @@ export default function QRScannerPage({ onBack }: Props) {
           </h1>
         </div>
 
-        {/* Scanner area */}
-        <div className="px-4 pt-10 text-center">
+        {/* Scanner */}
+        <div className="px-4 pt-6 text-center">
 
-          <div className="relative w-full aspect-square max-w-sm mx-auto rounded-3xl border-2 border-white/40 overflow-hidden flex items-center justify-center">
+          <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-3xl bg-black">
 
-            <QrCode className="w-32 h-32 text-white/80" strokeWidth={1} />
-
-            {/* Scan frame */}
-            <div className="absolute inset-12 border-2 border-blue-400 rounded-2xl" />
+            <div
+              id="qr-reader"
+              className="w-full"
+            />
 
           </div>
 
-          <h2 className="text-lg font-semibold mt-8">
-            สแกน QR Code ของงานซ่อม
-          </h2>
+          {scanning && !error && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <Camera className="w-5 h-5 text-blue-400" />
+              <span className="text-sm text-white/80">
+                กำลังเปิดกล้อง...
+              </span>
+            </div>
+          )}
 
-          <p className="text-sm text-white/60 mt-2">
-            นำ QR Code ที่ได้รับจากร้าน
-            มาไว้ในกรอบเพื่อสแกน
-          </p>
+          {error && (
+            <div className="mt-6 bg-red-500/10 border border-red-400/30 rounded-2xl p-4">
+              <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+
+              <p className="text-sm text-red-200">
+                {error}
+              </p>
+
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 rounded-xl bg-white/10 text-sm"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          )}
+
+          {!error && (
+            <>
+              <h2 className="text-lg font-semibold mt-8">
+                สแกน QR Code ของงานซ่อม
+              </h2>
+
+              <p className="text-sm text-white/60 mt-2">
+                นำ QR Code ที่ได้รับจากร้าน
+                มาไว้ในกรอบเพื่อสแกน
+              </p>
+            </>
+          )}
 
         </div>
 

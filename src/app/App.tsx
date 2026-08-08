@@ -108,6 +108,10 @@ export default function App() {
   return (
     <QRScannerPage
       onBack={() => setPublicPage('home')}
+      onScan={(value) => {
+        console.log('QR:', value);
+        setPublicPage('status');
+      }}
     />
   );
 }
