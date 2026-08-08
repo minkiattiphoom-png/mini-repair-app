@@ -40,10 +40,9 @@ export default function StatusPage({ jobs, onBack, initialJobId }: Props) {
   const handleSearch = () => {
     const q = query.trim();
     const found = jobs.find(j =>
-      j.jobNumber.toLowerCase() === q.toLowerCase() ||
-      j.phone.replace(/-/g, '') === q.replace(/-/g, '') ||
-      j.qrToken === q
-    );
+        j.jobNumber.toLowerCase() === q.toLowerCase() ||
+        j.phone.replace(/-/g, '') === q.replace(/-/g, '')
+      );
     setResult(found ?? 'not-found');
     setSearched(true);
   };

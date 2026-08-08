@@ -39,8 +39,8 @@ export default function App() {
   >('public');
 
   const [publicPage, setPublicPage] = useState<
-    'home' | 'status' | 'warranty'
-  >('home');
+  'home' | 'status' | 'warranty' | 'scanner'
+>('home');
 
   const [adminPage, setAdminPage] = useState<AdminPage>('dashboard');
 
@@ -49,6 +49,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
 
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+
+  const [scannedJobId, setScannedJobId] = useState<string | null>(null);
 
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
 
@@ -89,9 +91,9 @@ export default function App() {
   const goPublic = () => { setSection('public'); setPublicPage('home'); };
 
   const handleScanQR = () => {
-    setSection('public');
-    setPublicPage('status');
-  };
+  setSection('public');
+  setPublicPage('scanner');
+};
 
   const goRepairDetail = (id: string) => {
     setSelectedJobId(id);
@@ -99,35 +101,45 @@ export default function App() {
   };
 
   // ── Public routes ──────────────────────────────────────────────────────────
-    if (section === 'public') {
-    if (publicPage === 'status') {
-      return (
-        <StatusPage
-          jobs={jobs}
-          onBack={() => setPublicPage('home')}
-        />
-      );
-    }
+  if (section === 'public') {
 
-    if (publicPage === 'warranty') {
-      return (
-        <WarrantyPage
-          jobs={jobs}
-          onBack={() => setPublicPage('home')}
-        />
-      );
-    }
-
+  if (publicPage === 'scanner') {
     return (
-      <HomePage
-        onCheckStatus={() => setPublicPage('status')}
-        onCheckWarranty={() => setPublicPage('warranty')}
-        onAdminLogin={goAdmin}
-        onScanQR={handleScanQR}
-        onGoAdmin={goAdmin}
+      <div>
+        หน้าสแกน QR
+      </div>
+    );
+  }
+
+  if (publicPage === 'status') {
+    return (
+      <StatusPage
+        jobs={jobs}
+        onBack={() => setPublicPage('home')}
+        initialJobId={scannedJobId ?? undefined}
       />
     );
   }
+
+  if (publicPage === 'warranty') {
+    return (
+      <WarrantyPage
+        jobs={jobs}
+        onBack={() => setPublicPage('home')}
+      />
+    );
+  }
+
+  return (
+    <HomePage
+      onCheckStatus={() => setPublicPage('status')}
+      onCheckWarranty={() => setPublicPage('warranty')}
+      onAdminLogin={goAdmin}
+      onScanQR={handleScanQR}
+      onGoAdmin={goAdmin}
+    />
+  );
+}
 
   // ── Login ──────────────────────────────────────────────────────────────────
   if (section === 'login') {
