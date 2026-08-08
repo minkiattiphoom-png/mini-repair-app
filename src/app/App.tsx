@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { RepairJob, RepairStatus, AdminPage, AdminUser } from './types';
 import { mockRepairJobs, mockCustomers } from './data';
 
@@ -20,6 +20,7 @@ import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import QRScannerPage from './pages/QRScannerPage';
 import RepairHistoryPage from './pages/RepairHistoryPage';
+import { supabase } from '../lib/supabase';
 
 const pageTitles: Record<AdminPage, string> = {
   dashboard:          'แดชบอร์ด',
@@ -35,6 +36,16 @@ const pageTitles: Record<AdminPage, string> = {
 };
 
 export default function App() {
+  
+  const testSupabase = async () => {
+  const { data, error } = await supabase
+    .from('repair_jobs')
+    .select('*')
+    .limit(1);
+
+  console.log('Supabase data:', data);
+  console.log('Supabase error:', error);
+};
 
   const [section, setSection] = useState<
     'public' | 'login' | 'admin'
@@ -56,6 +67,62 @@ export default function App() {
 
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
 
+  useEffect(() => {
+  const load = async () => {
+    const { data, error } = await supabase
+      .from('repair_jobs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Load jobs error:', error);
+      return;
+    }
+
+    console.log('Jobs from Supabase:', data);
+
+    if (!data) return;
+
+    const mappedJobs: RepairJob[] = data.map(job => ({
+      id: job.id,
+      jobNumber: job.job_number,
+
+      customerId: job.customer_id ?? '',
+      customerName: job.customer_name ?? '',
+      phone: job.phone ?? '',
+
+      device: job.device,
+      brand: job.brand ?? '',
+      model: job.model ?? '',
+      serialNumber: job.serial_number ?? '',
+
+      problem: job.problem ?? '',
+      diagnosis: job.diagnosis ?? '',
+      repairDetail: job.repair_detail ?? '',
+
+      status: job.status as RepairStatus,
+      statusHistory: [],
+
+      createdAt: job.created_at,
+      updatedAt: job.updated_at,
+
+      estimatedCost: Number(job.estimated_cost ?? 0),
+      actualCost: Number(job.actual_cost ?? 0),
+
+      technician: job.technician ?? '',
+
+      warrantyDays: Number(job.warranty_days ?? 0),
+      warrantyExpiry: job.warranty_expiry ?? '',
+      hasWarranty: Boolean(job.has_warranty),
+
+      qrToken: job.qr_token,
+    }));
+
+    setJobs(mappedJobs);
+  };
+
+  load();
+}, []);
   const [customers] = useState(mockCustomers);
 
   const addJob = (job: RepairJob) => setJobs(prev => [job, ...prev]);
@@ -116,7 +183,6 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   if (urlJobNumber && urlQRToken) {
     return (
       <RepairHistoryPage
-        jobs={jobs}
         qrToken={urlQRToken}
         onBack={() => {
           window.history.pushState({}, '', '/');
@@ -140,13 +206,12 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
 if (publicPage === 'history') {
   return (
     <RepairHistoryPage
-      jobs={jobs}
-      qrToken={scannedQR ?? ''}
-      onBack={() => {
-        setScannedQR(null);
-        setPublicPage('home');
-      }}
-    />
+  qrToken={scannedQR ?? ''}
+  onBack={() => {
+    setScannedQR(null);
+    setPublicPage('home');
+  }}
+/>
   );
 }
 
@@ -173,6 +238,14 @@ if (publicPage === 'history') {
   }
 
   return (
+  <>
+    <button
+      onClick={testSupabase}
+      className="fixed bottom-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-lg"
+    >
+      Test Database
+    </button>
+
     <HomePage
       onCheckStatus={() => setPublicPage('status')}
       onCheckWarranty={() => setPublicPage('warranty')}
@@ -180,7 +253,8 @@ if (publicPage === 'history') {
       onScanQR={handleScanQR}
       onGoAdmin={goAdmin}
     />
-  );
+  </>
+);
 }
 
   // ── Login ──────────────────────────────────────────────────────────────────
