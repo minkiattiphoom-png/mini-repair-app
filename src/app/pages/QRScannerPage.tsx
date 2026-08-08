@@ -20,17 +20,8 @@ export default function QRScannerPage({ onBack, onScan }: Props) {
       try {
         setError(null);
 
-        const cameras = await Html5Qrcode.getCameras();
-
-        if (!cameras || cameras.length === 0) {
-          setError('ไม่พบกล้องในอุปกรณ์');
-          return;
-        }
-
-        const cameraId = cameras[0].id;
-
         await scanner.start(
-          cameraId,
+          { facingMode: 'environment' },
           {
             fps: 10,
             qrbox: {
@@ -43,14 +34,13 @@ export default function QRScannerPage({ onBack, onScan }: Props) {
           },
           () => {
             // อ่าน QR ไม่สำเร็จในเฟรมนี้
-            // ไม่ต้องแสดง error เพราะกล้องยังทำงานต่อ
           }
         );
 
         setScanning(true);
       } catch {
         setError(
-          'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการใช้กล้องแล้วลองใหม่'
+          'ไม่สามารถเปิดกล้องหลังได้ กรุณาอนุญาตการใช้กล้องแล้วลองใหม่'
         );
       }
     };
@@ -101,19 +91,17 @@ export default function QRScannerPage({ onBack, onScan }: Props) {
         <div className="px-4 pt-6 text-center">
 
           <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-3xl bg-black">
-
             <div
               id="qr-reader"
               className="w-full"
             />
-
           </div>
 
           {scanning && !error && (
             <div className="flex items-center justify-center gap-2 mt-6">
               <Camera className="w-5 h-5 text-blue-400" />
               <span className="text-sm text-white/80">
-                กำลังเปิดกล้อง...
+                กำลังเปิดกล้องหลัง...
               </span>
             </div>
           )}
