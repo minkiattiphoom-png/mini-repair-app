@@ -53,6 +53,8 @@ export default function App() {
 
   const [scannedJobId, setScannedJobId] = useState<string | null>(null);
 
+  const [scannedQR, setScannedQR] = useState<string | null>(null);
+
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
 
   const [customers] = useState(mockCustomers);
@@ -109,9 +111,9 @@ export default function App() {
     <QRScannerPage
       onBack={() => setPublicPage('home')}
       onScan={(value) => {
-        console.log('QR:', value);
+        setScannedQR(value);
         setPublicPage('status');
-      }}
+  }}
     />
   );
 }
@@ -119,10 +121,13 @@ export default function App() {
   if (publicPage === 'status') {
     return (
       <StatusPage
-        jobs={jobs}
-        onBack={() => setPublicPage('home')}
-        initialJobId={scannedJobId ?? undefined}
-      />
+          jobs={jobs}
+          onBack={() => {
+          setScannedQR(null);
+          setPublicPage('home');
+      }}
+  initialJobId={scannedQR ?? undefined}
+/>
     );
   }
 
