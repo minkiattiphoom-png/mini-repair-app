@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { RepairJob, RepairStatus, AdminPage, AppSection, AdminUser } from './types';
+import type { RepairJob, RepairStatus, AdminPage, AdminUser } from './types';
 import { mockRepairJobs, mockCustomers } from './data';
 
 import Sidebar from './components/Sidebar';
@@ -33,17 +33,34 @@ const pageTitles: Record<AdminPage, string> = {
 };
 
 export default function App() {
-  /* MARKER-MAKE-KIT-INVOKED */
-  const [section, setSection] = useState<AppSection>('public');
-  const [publicPage, setPublicPage] = useState<'home' | 'status' | 'warranty'>('home');
+  const urlJobNumber = new URLSearchParams(window.location.search).get('job');
+
+  const [section, setSection] = useState<
+    'public' | 'login' | 'admin'
+  >('public');
+
+  const [publicPage, setPublicPage] = useState<
+    'home' | 'status' | 'warranty'
+  >('home');
+
   const [adminPage, setAdminPage] = useState<AdminPage>('dashboard');
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [statusJobId] = useState<string | undefined>(undefined);
 
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
+
   const [customers] = useState(mockCustomers);
+
+  const statusJobId = urlJobNumber
+    ? jobs.find(
+        job =>
+          job.jobNumber.toLowerCase() === urlJobNumber.toLowerCase()
+      )?.id
+    : undefined;
 
   const addJob = (job: RepairJob) => setJobs(prev => [job, ...prev]);
 
@@ -84,22 +101,32 @@ export default function App() {
     setAdminPage('repair-detail');
   };
 
-  const handleScanQR = () => setPublicPage('status');
-  const handleCheckStatus = () => setPublicPage('status');
-
   // ── Public routes ──────────────────────────────────────────────────────────
-  if (section === 'public') {
+    if (section === 'public') {
     if (publicPage === 'status') {
-      return <StatusPage jobs={jobs} onBack={() => setPublicPage('home')} initialJobId={statusJobId} />;
+      return (
+        <StatusPage
+          jobs={jobs}
+          onBack={() => setPublicPage('home')}
+          initialJobId={statusJobId}
+        />
+      );
     }
+
     if (publicPage === 'warranty') {
-      return <WarrantyPage jobs={jobs} onBack={() => setPublicPage('home')} />;
+      return (
+        <WarrantyPage
+          jobs={jobs}
+          onBack={() => setPublicPage('home')}
+        />
+      );
     }
+
     return (
       <HomePage
-        onScanQR={handleScanQR}
-        onCheckStatus={handleCheckStatus}
-        onGoAdmin={goAdmin}
+        onCheckStatus={() => setPublicPage('status')}
+        onCheckWarranty={() => setPublicPage('warranty')}
+        onAdminLogin={goAdmin}
       />
     );
   }
