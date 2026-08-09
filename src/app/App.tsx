@@ -239,17 +239,13 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
             status,
             updated_at: updatedAt,
           })
-            .eq('id', id)
-            .select()
-            .single();
-
+            .eq('id', id);
+           
   if (error) {
     console.error('Update job status error:', error);
     alert(`อัปเดตสถานะไม่สำเร็จ: ${error.message}`);
     return false;
   }
-
-  console.log('Updated job status:', data);
 
   setJobs(prev =>
     prev.map(j =>
