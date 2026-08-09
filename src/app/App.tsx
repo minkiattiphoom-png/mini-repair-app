@@ -184,7 +184,7 @@ const updateRepairJob = async (
 ): Promise<boolean> => {
   const updatedAt = new Date().toISOString();
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('repair_jobs')
     .update({
       problem: job.problem,
