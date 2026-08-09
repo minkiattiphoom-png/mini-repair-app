@@ -25,6 +25,7 @@ const stepIcons: Record<RepairStatus, React.ElementType> = {
 const allStatuses: RepairStatus[] = allSteps;
 
 export default function RepairDetailPage({job,onBack,onUpdateStatus,onSave,}: Props) {
+  console.log('REPAIR DETAIL LOADED:', job.jobNumber);
   const [showQR, setShowQR] = useState(false);
   const [editStatus, setEditStatus] = useState(false);
   const DeviceIcon = deviceIcons[job.device] ?? Wrench;
