@@ -232,6 +232,7 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
         id: string,
         status: RepairStatus
     ) => {
+      console.log('UPDATE CALLED:', id, status);
         const updatedAt = new Date().toISOString();
         const { data, error } = await supabase
           .from('repair_jobs')
