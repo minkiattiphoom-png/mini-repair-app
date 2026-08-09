@@ -247,20 +247,27 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
     <QRScannerPage
   onBack={() => setPublicPage('home')}
   onScan={(value) => {
-    const parts = value.split(':');
+  console.log('QR RAW VALUE:', value);
 
-    if (parts.length === 3 && parts[0] === 'MINIREPAIR') {
-      const qrToken = parts[2];
+  const parts = value.split(':');
 
-      setScannedQR(qrToken);
-      setPublicPage('history');
-      return;
-    }
+  console.log('QR PARTS:', parts);
 
-    // กรณี QR เป็น qrToken โดยตรง
-    setScannedQR(value);
+  if (parts.length === 3 && parts[0] === 'MINIREPAIR') {
+    const qrToken = parts[2];
+
+    console.log('QR TOKEN:', qrToken);
+
+    setScannedQR(qrToken);
     setPublicPage('history');
-  }}
+    return;
+  }
+
+  console.log('QR DIRECT VALUE:', value);
+
+  setScannedQR(value);
+  setPublicPage('history');
+}}
   />
   );
 }
