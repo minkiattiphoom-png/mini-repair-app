@@ -240,7 +240,11 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
             status,
             updated_at: updatedAt,
           })
-            .eq('id', id);
+            .eq('id', id)
+            .select('id, status, updated_at');
+
+              console.log('UPDATE RESULT:', data);
+              console.log('UPDATE ERROR:', error);
            
   if (error) {
     console.error('Update job status error:', error);
