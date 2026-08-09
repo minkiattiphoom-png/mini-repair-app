@@ -205,23 +205,7 @@ export default function StatusPage({ jobs, onBack, initialJobId }: Props) {
             </div>
           </div>
         )}
-
-        {/* Quick try */}
-        {!searched && (
-          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-            <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">งานตัวอย่าง</div>
-            {jobs.slice(0, 4).map(j => (
-              <button key={j.id} onClick={() => { setQuery(j.jobNumber); setResult(j); setSearched(true); }}
-                className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted rounded-xl transition-colors text-sm">
-                <span className="font-medium text-foreground font-mono">{j.jobNumber}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{j.brand} {j.model}</span>
-                  <StatusBadge status={j.status} />
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+      
       </div>
     </div>
   );
