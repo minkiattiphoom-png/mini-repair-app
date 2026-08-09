@@ -202,17 +202,13 @@ const updateRepairJob = async (
 
       updated_at: updatedAt,
     })
-    .eq('id', job.id)
-    .select()
-    .single();
+    .eq('id', job.id);
 
   if (error) {
     console.error('Update repair job error:', error);
     alert(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`);
     return false;
   }
-
-  console.log('Updated repair job:', data);
 
   const updatedJob: RepairJob = {
     ...job,
