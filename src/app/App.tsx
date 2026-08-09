@@ -280,7 +280,28 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   return true;
 };
 
-  const deleteJob = (id: string) => setJobs(prev => prev.filter(j => j.id !== id));
+  const deleteJob = async (id: string) => {
+  console.log('DELETE CALLED:', id);
+
+  const { data, error } = await supabase
+    .from('repair_jobs')
+    .delete()
+    .eq('id', id)
+    .select();
+
+  console.log('DELETE RESULT:', data);
+  console.log('DELETE ERROR:', error);
+
+  if (error) {
+    console.error('Delete repair job error:', error);
+    alert(`ลบงานไม่สำเร็จ: ${error.message}`);
+    return false;
+  }
+
+  setJobs(prev => prev.filter(j => j.id !== id));
+
+  return true;
+};
 
   const handleLogin = (user: AdminUser) => {
     setCurrentUser(user);
