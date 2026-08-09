@@ -67,7 +67,7 @@ export default function AdminLoginPage({ onLogin, onBack }: Props) {
           <div className="inline-flex items-center justify-center w-[230px] h-[230px] bg-white rounded-full mb-4 shadow-xl">
             <MiniRepairLogo size={230} />
           </div>
-          <h1 className="text-2xl font-bold text-white">ระบบหลังบ้าน</h1>
+          <h1 className="text-2xl font-bold text-white">Admin Only</h1>
           <p className="text-slate-400 text-sm mt-1">มินิซ่อม — Mini Repair</p>
         </div>
 
