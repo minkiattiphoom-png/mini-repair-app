@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ArrowLeft, Smartphone, Laptop, Monitor, Tablet, Tv, Wrench, AlertCircle, CheckCircle, ClipboardList, Settings, Award, Package } from 'lucide-react';
 import type { RepairJob, RepairStatus } from '../types';
 import MiniRepairLogo from '../components/MiniRepairLogo';
@@ -23,19 +23,28 @@ const stepIcons: Record<RepairStatus, React.ElementType> = {
 
 export default function StatusPage({ jobs, onBack, initialJobId }: Props) {
   const [query, setQuery] = useState(initialJobId ?? '');
-  const [result, setResult] = useState<RepairJob | null | 'not-found'>(
-  initialJobId
-    ? (
-        jobs.find(
-          j =>
-            j.id === initialJobId ||
-            j.jobNumber.toLowerCase() === initialJobId.toLowerCase() ||
-            j.qrToken === initialJobId
-        ) ?? 'not-found'
-      )
-    : null
-);
-  const [searched, setSearched] = useState(!!initialJobId);
+  const [result, setResult] = useState<RepairJob | null | 'not-found'>(null);
+  const [searched, setSearched] = useState(false);
+
+useEffect(() => {
+  if (!initialJobId || jobs.length === 0) return;
+
+  const q = initialJobId.trim();
+
+  const found = jobs.find(
+    j =>
+      j.id === q ||
+      j.jobNumber.toLowerCase() === q.toLowerCase() ||
+      j.qrToken === q
+  );
+
+  console.log('QR AUTO SEARCH:', q);
+  console.log('QR FOUND:', found);
+
+  setResult(found ?? 'not-found');
+  setSearched(true);
+  setQuery(q);
+}, [initialJobId, jobs]);
 
   const handleSearch = () => {
     const q = query.trim();
