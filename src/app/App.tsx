@@ -179,41 +179,57 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
 };
 
 // ⬇️ Update แก้ไขงานซ่อม
-const updateRepairJob = async (
-  job: RepairJob
+const updateJobStatus = async (
+  id: string,
+  status: RepairStatus
 ): Promise<boolean> => {
   const updatedAt = new Date().toISOString();
 
-  const { error } = await supabase
+  console.log('UPDATE ID:', id);
+  console.log('UPDATE STATUS:', status);
+
+  const { data, error } = await supabase
     .from('repair_jobs')
     .update({
-      problem: job.problem,
-      diagnosis: job.diagnosis,
-      repair_detail: job.repairDetail,
-      estimated_cost: job.estimatedCost,
-      actual_cost: job.actualCost,
-      technician: job.technician,
-      warranty_days: job.warrantyDays,
-      warranty_expiry: job.warrantyExpiry || null,
-      has_warranty: job.hasWarranty,
+      status: status,
       updated_at: updatedAt,
     })
-    .eq('id', job.id);
+    .eq('id', id)
+    .select('id, status, updated_at');
+
+  console.log('UPDATE RESULT:', data);
+  console.log('UPDATE ERROR:', error);
 
   if (error) {
-    console.error('Update repair job error:', error);
-    alert(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`);
+    console.error('Update job status error:', error);
+    alert(`อัปเดตสถานะไม่สำเร็จ: ${error.message}`);
     return false;
   }
 
-  const updatedJob: RepairJob = {
-    ...job,
-    updatedAt,
-  };
+  if (!data || data.length === 0) {
+    console.error('ไม่มีแถวถูกแก้ไข');
+    alert('ไม่พบงานซ่อมใน Database หรือไม่มีสิทธิ์แก้ไขข้อมูล');
+    return false;
+  }
 
   setJobs(prev =>
     prev.map(j =>
-      j.id === job.id ? updatedJob : j
+      j.id === id
+        ? {
+            ...j,
+            status,
+            updatedAt,
+            statusHistory: [
+              ...j.statusHistory,
+              {
+                status,
+                note: 'อัปเดตสถานะ',
+                by: currentUser?.name ?? 'ระบบ',
+                at: new Date().toLocaleString('th-TH'),
+              },
+            ],
+          }
+        : j
     )
   );
 
