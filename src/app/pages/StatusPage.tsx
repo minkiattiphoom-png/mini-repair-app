@@ -48,15 +48,15 @@ useEffect(() => {
 }, [initialJobId, jobs]);
 
   const handleSearch = () => {
-    const q = query.trim();
-    const found = jobs.find(j =>
-  j.jobNumber.toLowerCase() === q.toLowerCase() ||
-  j.phone.replace(/-/g, '') === q.replace(/-/g, '') ||
-  j.qrToken === q
-);
-    setResult(found ?? 'not-found');
-    setSearched(true);
-  };
+  const q = query.trim().replace(/-/g, '');
+
+  const found = jobs.find(
+    j => j.phone.replace(/-/g, '') === q
+  );
+
+  setResult(found ?? 'not-found');
+  setSearched(true);
+};
 
   const currentStepIdx = result && result !== 'not-found'
     ? allSteps.indexOf(result.status) : -1;
@@ -90,7 +90,7 @@ useEffect(() => {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder="เช่น MR-2025-001 หรือ 081-234-5678"
+                placeholder="เช่น 081-234-5678"
                 className="flex-1 bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground"
               />
             </div>
