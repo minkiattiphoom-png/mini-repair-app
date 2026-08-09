@@ -78,7 +78,7 @@ useEffect(() => {
       <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
         <div className="text-center">
           <h1 className="text-xl font-bold text-foreground">ตรวจสอบสถานะงานซ่อม</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">ใส่เลขงานหรือเบอร์โทรเพื่อตรวจสอบ</p>
+          <p className="text-sm text-muted-foreground mt-0.5">ใส่เบอร์โทรเพื่อตรวจสอบ</p>
         </div>
 
         {/* Search */}
@@ -109,7 +109,7 @@ useEffect(() => {
           <div className="bg-card border border-border rounded-2xl p-8 text-center shadow-sm">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-30" />
             <h3 className="font-semibold text-foreground mb-1">ไม่พบข้อมูล</h3>
-            <p className="text-sm text-muted-foreground">กรุณาตรวจสอบเลขงานหรือติดต่อร้าน</p>
+            <p className="text-sm text-muted-foreground">กรุณาตรวจสอบเบอร์โทรหรือติดต่อร้าน</p>
           </div>
         )}
 
