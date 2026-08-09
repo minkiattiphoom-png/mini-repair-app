@@ -37,15 +37,7 @@ const pageTitles: Record<AdminPage, string> = {
 
 export default function App() {
   
-  const testSupabase = async () => {
-  const { data, error } = await supabase
-    .from('repair_jobs')
-    .select('*')
-    .limit(1);
 
-  console.log('Supabase data:', data);
-  console.log('Supabase error:', error);
-};
 
   const [section, setSection] = useState<
     'public' | 'login' | 'admin'
@@ -392,12 +384,6 @@ if (publicPage === 'history') {
 
   return (
   <>
-    <button
-  onClick={testSupabase}
-  className="bg-blue-600 text-white px-4 py-2 rounded"
->
-  Test Database
-</button>
 
     <HomePage
       onCheckStatus={() => setPublicPage('status')}
