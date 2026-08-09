@@ -178,6 +178,56 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
   return true;
 };
 
+// ⬇️ Update แก้ไขงานซ่อม
+const updateRepairJob = async (
+  job: RepairJob
+): Promise<boolean> => {
+  const updatedAt = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from('repair_jobs')
+    .update({
+      problem: job.problem,
+      diagnosis: job.diagnosis,
+      repair_detail: job.repairDetail,
+
+      estimated_cost: job.estimatedCost,
+      actual_cost: job.actualCost,
+
+      technician: job.technician,
+
+      warranty_days: job.warrantyDays,
+      warranty_expiry: job.warrantyExpiry || null,
+      has_warranty: job.hasWarranty,
+
+      updated_at: updatedAt,
+    })
+    .eq('id', job.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Update repair job error:', error);
+    alert(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`);
+    return false;
+  }
+
+  console.log('Updated repair job:', data);
+
+  const updatedJob: RepairJob = {
+    ...job,
+    updatedAt,
+  };
+
+  setJobs(prev =>
+    prev.map(j =>
+      j.id === job.id ? updatedJob : j
+    )
+  );
+
+  return true;
+};
+
   const pathname = window.location.pathname;
   const repairUrlMatch = pathname.match(
   /^\/repair\/([^/]+)\/([^/]+)$/
@@ -186,20 +236,52 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
 const urlJobNumber = repairUrlMatch?.[1] ?? null;
 const urlQRToken = repairUrlMatch?.[2] ?? null;
 
-  const updateJobStatus = (id: string, status: RepairStatus) =>
-    setJobs(prev => prev.map(j =>
+  const updateJobStatus = async (
+        id: string,
+        status: RepairStatus
+    ) => {
+        const updatedAt = new Date().toISOString();
+        const { data, error } = await supabase
+          .from('repair_jobs')
+          .update({
+            status,
+            updated_at: updatedAt,
+          })
+            .eq('id', id)
+            .select()
+            .single();
+
+  if (error) {
+    console.error('Update job status error:', error);
+    alert(`อัปเดตสถานะไม่สำเร็จ: ${error.message}`);
+    return false;
+  }
+
+  console.log('Updated job status:', data);
+
+  setJobs(prev =>
+    prev.map(j =>
       j.id === id
         ? {
             ...j,
             status,
-            updatedAt: new Date().toISOString().split('T')[0],
+            updatedAt,
             statusHistory: [
               ...j.statusHistory,
-              { status, note: 'อัปเดตสถานะ', by: currentUser?.name ?? 'ระบบ', at: new Date().toLocaleString('th-TH') },
+              {
+                status,
+                note: 'อัปเดตสถานะ',
+                by: currentUser?.name ?? 'ระบบ',
+                at: new Date().toLocaleString('th-TH'),
+              },
             ],
           }
         : j
-    ));
+    )
+  );
+
+  return true;
+};
 
   const deleteJob = (id: string) => setJobs(prev => prev.filter(j => j.id !== id));
 
@@ -361,10 +443,24 @@ if (publicPage === 'history') {
         );
 
       case 'repair-detail':
-        return selectedJob
-          ? <RepairDetailPage job={selectedJob} onBack={() => setAdminPage('repairs')} onUpdateStatus={updateJobStatus} />
-          : <RepairsPage jobs={jobs} onAddNew={() => setAdminPage('add-repair')} onUpdateStatus={updateJobStatus} onDeleteJob={deleteJob} onViewDetail={goRepairDetail} />;
-
+  return selectedJob
+    ? (
+        <RepairDetailPage
+          job={selectedJob}
+          onBack={() => setAdminPage('repairs')}
+          onUpdateStatus={updateJobStatus}
+          onSave={updateRepairJob}
+        />
+      )
+    : (
+        <RepairsPage
+          jobs={jobs}
+          onAddNew={() => setAdminPage('add-repair')}
+          onUpdateStatus={updateJobStatus}
+          onDeleteJob={deleteJob}
+          onViewDetail={goRepairDetail}
+        />
+      );
       case 'add-repair':
         return (
           <AddRepairPage

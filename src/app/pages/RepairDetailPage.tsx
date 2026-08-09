@@ -4,7 +4,12 @@ import StatusBadge from '../components/StatusBadge';
 import QRCode from 'react-qr-code';
 import { useState } from 'react';
 
-interface Props { job: RepairJob; onBack: () => void; onUpdateStatus: (id: string, status: RepairStatus) => void }
+interface Props {
+  job: RepairJob;
+  onBack: () => void;
+  onUpdateStatus: (id: string, status: RepairStatus) => void;
+  onSave: (job: RepairJob) => Promise<boolean>;
+}
 
 const deviceIcons: Record<string, React.ElementType> = {
   'โทรศัพท์มือถือ': Smartphone, 'โน้ตบุ๊ก': Laptop, 'คอมพิวเตอร์': Monitor, 'แท็บเล็ต': Tablet, 'โทรทัศน์': Tv,
@@ -19,12 +24,51 @@ const stepIcons: Record<RepairStatus, React.ElementType> = {
 
 const allStatuses: RepairStatus[] = allSteps;
 
-export default function RepairDetailPage({ job, onBack, onUpdateStatus }: Props) {
+export default function RepairDetailPage({job,onBack,onUpdateStatus,onSave,}: Props) {
   const [showQR, setShowQR] = useState(false);
   const [editStatus, setEditStatus] = useState(false);
   const DeviceIcon = deviceIcons[job.device] ?? Wrench;
   const currentStepIdx = allSteps.indexOf(job.status);
   const today = new Date().toISOString().split('T')[0];
+  const [editing, setEditing] = useState(false);
+const [saving, setSaving] = useState(false);
+
+const [form, setForm] = useState({
+  problem: job.problem,
+  diagnosis: job.diagnosis,
+  repairDetail: job.repairDetail,
+  estimatedCost: job.estimatedCost,
+  actualCost: job.actualCost,
+  technician: job.technician,
+  warrantyDays: job.warrantyDays,
+  warrantyExpiry: job.warrantyExpiry,
+  hasWarranty: job.hasWarranty,
+});
+const handleSave = async () => {
+  setSaving(true);
+
+  const updatedJob: RepairJob = {
+    ...job,
+    problem: form.problem,
+    diagnosis: form.diagnosis,
+    repairDetail: form.repairDetail,
+    estimatedCost: Number(form.estimatedCost) || 0,
+    actualCost: Number(form.actualCost) || 0,
+    technician: form.technician,
+    warrantyDays: Number(form.warrantyDays) || 0,
+    warrantyExpiry: form.warrantyExpiry,
+    hasWarranty: form.hasWarranty,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const success = await onSave(updatedJob);
+
+  setSaving(false);
+
+  if (success) {
+    setEditing(false);
+  }
+};
 
   return (
     <div className="p-4 lg:p-6 space-y-5 max-w-2xl">
@@ -70,8 +114,13 @@ export default function RepairDetailPage({ job, onBack, onUpdateStatus }: Props)
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={job.status} />
-            <button onClick={() => setEditStatus(s => !s)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border text-xs font-medium hover:bg-muted/70"
+            >
               <Edit2 className="w-3.5 h-3.5" />
+                แก้ไข
             </button>
           </div>
         </div>
