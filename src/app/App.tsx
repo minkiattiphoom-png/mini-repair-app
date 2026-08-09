@@ -190,16 +190,12 @@ const updateRepairJob = async (
       problem: job.problem,
       diagnosis: job.diagnosis,
       repair_detail: job.repairDetail,
-
       estimated_cost: job.estimatedCost,
       actual_cost: job.actualCost,
-
       technician: job.technician,
-
       warranty_days: job.warrantyDays,
       warranty_expiry: job.warrantyExpiry || null,
       has_warranty: job.hasWarranty,
-
       updated_at: updatedAt,
     })
     .eq('id', job.id);
