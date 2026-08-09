@@ -125,7 +125,58 @@ export default function App() {
 }, []);
   const [customers] = useState(mockCustomers);
 
-  const addJob = (job: RepairJob) => setJobs(prev => [job, ...prev]);
+const addJob = async (job: RepairJob): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('repair_jobs')
+    .insert({
+      job_number: job.jobNumber,
+      qr_token: job.qrToken,
+
+      customer_name: job.customerName,
+      phone: job.phone,
+
+      device: job.device,
+      brand: job.brand,
+      model: job.model,
+      serial_number: job.serialNumber,
+
+      problem: job.problem,
+      diagnosis: job.diagnosis,
+      repair_detail: job.repairDetail,
+
+      status: job.status,
+
+      estimated_cost: job.estimatedCost,
+      actual_cost: job.actualCost,
+
+      technician: job.technician,
+
+      warranty_days: job.warrantyDays,
+      warranty_expiry: job.warrantyExpiry || null,
+      has_warranty: job.hasWarranty,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Create repair job error:', error);
+    alert(`บันทึกงานไม่สำเร็จ: ${error.message}`);
+    return false;
+  }
+
+  console.log('Created repair job:', data);
+
+  const savedJob: RepairJob = {
+    ...job,
+    id: data.id,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+
+  setJobs(prev => [savedJob, ...prev]);
+
+  return true;
+};
 
   const pathname = window.location.pathname;
   const repairUrlMatch = pathname.match(
@@ -194,12 +245,23 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   if (publicPage === 'scanner') {
   return (
     <QRScannerPage
-      onBack={() => setPublicPage('home')}
-      onScan={(value) => {
-        setScannedQR(value);
-        setPublicPage('history');
+  onBack={() => setPublicPage('home')}
+  onScan={(value) => {
+    const parts = value.split(':');
+
+    if (parts.length === 3 && parts[0] === 'MINIREPAIR') {
+      const qrToken = parts[2];
+
+      setScannedQR(qrToken);
+      setPublicPage('history');
+      return;
+    }
+
+    // กรณี QR เป็น qrToken โดยตรง
+    setScannedQR(value);
+    setPublicPage('history');
   }}
-    />
+  />
   );
 }
 
@@ -290,8 +352,13 @@ if (publicPage === 'history') {
       case 'add-repair':
         return (
           <AddRepairPage
-            onSave={job => { addJob(job); setAdminPage('repairs'); }}
-            onBack={() => setAdminPage('repairs')}
+              onSave={async job => {
+              const ok = await addJob(job);
+            if (ok) {
+                setAdminPage('repairs');
+                }
+            }}
+              onBack={() => setAdminPage('repairs')}
             jobCount={jobs.length}
           />
         );
