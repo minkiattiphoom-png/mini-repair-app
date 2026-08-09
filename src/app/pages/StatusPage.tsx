@@ -3,6 +3,7 @@ import { Search, ArrowLeft, Smartphone, Laptop, Monitor, Tablet, Tv, Wrench, Ale
 import type { RepairJob, RepairStatus } from '../types';
 import MiniRepairLogo from '../components/MiniRepairLogo';
 import StatusBadge from '../components/StatusBadge';
+import { formatThaiDateTime } from '../../lib/date';
 
 interface Props { jobs: RepairJob[]; onBack: () => void; initialJobId?: string }
 
@@ -135,7 +136,7 @@ useEffect(() => {
             ['เลขงาน', result.jobNumber],
             ['ชื่อลูกค้า', result.customerName],
             ['อาการเสีย', result.problem],
-            ['วันที่รับเครื่อง', result.createdAt],
+            ['วันที่รับเครื่อง', formatThaiDateTime(result.createdAt)],
             [
       'ราคาประเมิน',
       result.estimatedCost > 0
@@ -146,8 +147,8 @@ useEffect(() => {
       ? ['ราคาซ่อมจริง', `฿${result.actualCost.toLocaleString()}`]
       : null,
     result.warrantyExpiry
-      ? ['ประกันงานซ่อม', `ถึง ${result.warrantyExpiry}`]
-      : null,
+  ? ['ประกันงานซ่อม', `ถึง ${formatThaiDateTime(result.warrantyExpiry)}`]
+  : null,
   ]
     .filter(
       (item): item is [string, string] => item !== null
@@ -201,7 +202,7 @@ useEffect(() => {
                           {current && <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full">ปัจจุบัน</span>}
                         </div>
                         {historyEntry && (
-                          <div className="text-xs text-muted-foreground mt-0.5">{historyEntry.at}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{formatThaiDateTime(historyEntry.at)}</div>
                         )}
                         {historyEntry?.note && (
                           <div className="text-xs text-muted-foreground italic mt-0.5">"{historyEntry.note}"</div>

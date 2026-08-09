@@ -3,6 +3,7 @@ import type { RepairJob, RepairStatus } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import QRCode from 'react-qr-code';
 import { useState } from 'react';
+import { formatThaiDateTime } from '../../lib/date';
 
 interface Props {
   job: RepairJob;
@@ -79,7 +80,7 @@ const handleSave = async () => {
         </button>
         <div className="flex-1">
           <h2 className="text-lg font-bold text-foreground">{job.jobNumber}</h2>
-          <p className="text-xs text-muted-foreground">รับเมื่อ {job.createdAt}</p>
+          <p className="text-xs text-muted-foreground">รับเมื่อ {formatThaiDateTime(job.createdAt)}</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowQR(s => !s)} className="flex items-center gap-1.5 px-3 py-2 bg-muted border border-border rounded-xl text-xs font-medium hover:bg-muted/70 transition-colors">
@@ -364,7 +365,7 @@ const handleSave = async () => {
             ['ราคาประเมิน', job.estimatedCost > 0 ? `฿${job.estimatedCost.toLocaleString()}` : 'ยังไม่แจ้งราคา'],
             ['ราคาจริง', job.actualCost > 0 ? `฿${job.actualCost.toLocaleString()}` : '—'],
             ['ช่าง', job.technician || 'ยังไม่มอบหมาย'],
-            ['วันที่รับ', job.createdAt],
+            ['วันที่รับ', formatThaiDateTime(job.createdAt)],
           ].map(([lbl, val]) => (
             <div key={lbl as string} className="flex gap-2">
               <span className="text-muted-foreground text-xs w-28 flex-shrink-0">{lbl}</span>
@@ -392,7 +393,12 @@ const handleSave = async () => {
             <ShieldCheck className="w-4 h-4 text-green-600 flex-shrink-0" />
             <div>
               <div className="text-xs font-semibold text-green-700">รับประกัน {job.warrantyDays} วัน</div>
-              <div className="text-xs text-green-600">หมดอายุ {job.warrantyExpiry} {job.warrantyExpiry >= today ? '✓ ยังอยู่ในประกัน' : '⚠️ หมดแล้ว'}</div>
+              <div className="text-xs text-green-600">
+                    หมดอายุ {formatThaiDateTime(job.warrantyExpiry)}{' '}
+                    {new Date(job.warrantyExpiry) >= new Date()
+                      ? '✓ ยังอยู่ในประกัน'
+                      : '⚠️ หมดแล้ว'}
+              </div>
             </div>
           </div>
         )}
