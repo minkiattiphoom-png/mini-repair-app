@@ -151,10 +151,22 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
     .single();
 
   if (error) {
-    console.error('Create repair job error:', error);
-    alert(`บันทึกงานไม่สำเร็จ: ${error.message}`);
-    return false;
-  }
+  console.error('CREATE ERROR FULL:', error);
+  console.error('CREATE ERROR MESSAGE:', error.message);
+  console.error('CREATE ERROR DETAILS:', error.details);
+  console.error('CREATE ERROR HINT:', error.hint);
+  console.error('CREATE ERROR CODE:', error.code);
+
+  alert(
+    `บันทึกงานไม่สำเร็จ\n\n` +
+    `Code: ${error.code}\n` +
+    `Message: ${error.message}\n` +
+    `Details: ${error.details ?? ''}\n` +
+    `Hint: ${error.hint ?? ''}`
+  );
+
+  return false;
+}
 
   console.log('Created repair job:', data);
 
