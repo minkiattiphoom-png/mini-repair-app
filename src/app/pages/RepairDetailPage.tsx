@@ -130,7 +130,7 @@ const handleSave = async () => {
             <div className="text-xs font-medium text-muted-foreground mb-2">เปลี่ยนสถานะ</div>
             <div className="flex flex-wrap gap-1.5">
               {allStatuses.map(s => (
-                <button key={s} onClick={() => { onUpdateStatus(job.id, s); setEditStatus(false); }}
+                <button key={s} onClick={() => {console.log('CLICK STATUS:', s);console.log('JOB ID:', job.id);onUpdateStatus(job.id, s);setEditStatus(false);}}
                   className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${job.status === s ? 'bg-primary text-white' : 'bg-card border border-border hover:bg-muted'}`}>
                   {s}
                 </button>
@@ -138,6 +138,221 @@ const handleSave = async () => {
             </div>
           </div>
         )}
+{editing && (
+  <div className="mb-5 p-4 bg-blue-50 border border-blue-100 rounded-2xl space-y-4">
+    <div className="font-semibold text-sm text-foreground">
+      แก้ไขรายละเอียดงาน
+    </div>
+
+    <div>
+      <label className="block text-xs font-medium mb-1">
+        อาการเสีย
+      </label>
+
+      <textarea
+        value={form.problem}
+        onChange={e =>
+          setForm(prev => ({
+            ...prev,
+            problem: e.target.value,
+          }))
+        }
+        className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        rows={3}
+      />
+    </div>
+
+    <div>
+      <label className="block text-xs font-medium mb-1">
+        ผลการตรวจสอบ
+      </label>
+
+      <textarea
+        value={form.diagnosis}
+        onChange={e =>
+          setForm(prev => ({
+            ...prev,
+            diagnosis: e.target.value,
+          }))
+        }
+        className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        rows={3}
+      />
+    </div>
+
+    <div>
+      <label className="block text-xs font-medium mb-1">
+        รายละเอียดการซ่อม
+      </label>
+
+      <textarea
+        value={form.repairDetail}
+        onChange={e =>
+          setForm(prev => ({
+            ...prev,
+            repairDetail: e.target.value,
+          }))
+        }
+        className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        rows={3}
+      />
+    </div>
+
+    <div className="grid sm:grid-cols-2 gap-3">
+
+      <div>
+        <label className="block text-xs font-medium mb-1">
+          ราคาประเมิน
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          value={form.estimatedCost}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              estimatedCost: Number(e.target.value),
+            }))
+          }
+          className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1">
+          ราคาซ่อมจริง
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          value={form.actualCost}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              actualCost: Number(e.target.value),
+            }))
+          }
+          className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none"
+        />
+      </div>
+
+    </div>
+
+    <div>
+      <label className="block text-xs font-medium mb-1">
+        ช่างผู้รับผิดชอบ
+      </label>
+
+      <input
+        type="text"
+        value={form.technician}
+        onChange={e =>
+          setForm(prev => ({
+            ...prev,
+            technician: e.target.value,
+          }))
+        }
+        className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none"
+      />
+    </div>
+
+    <div className="border-t border-blue-100 pt-4">
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.hasWarranty}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              hasWarranty: e.target.checked,
+            }))
+          }
+        />
+
+        มีประกันงานซ่อม
+      </label>
+    </div>
+
+    {form.hasWarranty && (
+      <div className="grid sm:grid-cols-2 gap-3">
+
+        <div>
+          <label className="block text-xs font-medium mb-1">
+            ประกันกี่วัน
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            value={form.warrantyDays}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                warrantyDays: Number(e.target.value),
+              }))
+            }
+            className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium mb-1">
+            วันหมดประกัน
+          </label>
+
+          <input
+            type="date"
+            value={form.warrantyExpiry}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                warrantyExpiry: e.target.value,
+              }))
+            }
+            className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none"
+          />
+        </div>
+
+      </div>
+    )}
+
+    <div className="flex justify-end gap-2 pt-2">
+
+      <button
+        onClick={() => {
+          setEditing(false);
+
+          setForm({
+            problem: job.problem,
+            diagnosis: job.diagnosis,
+            repairDetail: job.repairDetail,
+            estimatedCost: job.estimatedCost,
+            actualCost: job.actualCost,
+            technician: job.technician,
+            warrantyDays: job.warrantyDays,
+            warrantyExpiry: job.warrantyExpiry,
+            hasWarranty: job.hasWarranty,
+          });
+        }}
+        disabled={saving}
+        className="px-4 py-2 rounded-xl bg-muted border border-border text-sm font-medium"
+      >
+        ยกเลิก
+      </button>
+
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold disabled:opacity-50"
+      >
+        {saving ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+      </button>
+
+    </div>
+  </div>
+)}
 
         <div className="grid sm:grid-cols-2 gap-3 text-sm">
           {[
