@@ -9,6 +9,7 @@ interface Props {
 
 export default function QRScannerPage({ onBack, onScan }: Props) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const hasScannedRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
 
@@ -30,8 +31,10 @@ export default function QRScannerPage({ onBack, onScan }: Props) {
             },
           },
           (decodedText) => {
-            onScan(decodedText);
-          },
+            if (hasScannedRef.current) return;
+              hasScannedRef.current = true;
+              onScan(decodedText);
+            },
           () => {
             // อ่าน QR ไม่สำเร็จในเฟรมนี้
           }

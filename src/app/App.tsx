@@ -232,16 +232,17 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   if (section === 'public') {
  // เปิดจาก QR URL โดยตรง
   if (urlJobNumber && urlQRToken) {
-    return (
-      <RepairHistoryPage
-        qrToken={urlQRToken}
-        onBack={() => {
-          window.history.pushState({}, '', '/');
-          setPublicPage('home');
-        }}
-      />
-    );
-  }
+  return (
+    <StatusPage
+      jobs={jobs}
+      initialJobId={urlQRToken}
+      onBack={() => {
+        window.history.pushState({}, '', '/');
+        setPublicPage('home');
+      }}
+    />
+  );
+}
   if (publicPage === 'scanner') {
   return (
     <QRScannerPage
@@ -249,24 +250,32 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   onScan={(value) => {
   console.log('QR RAW VALUE:', value);
 
-  const parts = value.split(':');
+  try {
+    const url = new URL(value);
 
-  console.log('QR PARTS:', parts);
+    const match = url.pathname.match(
+      /^\/repair\/([^/]+)\/([^/]+)$/
+    );
 
-  if (parts.length === 3 && parts[0] === 'MINIREPAIR') {
-    const qrToken = parts[2];
+    if (match) {
+      const [, jobNumber, qrToken] = match;
 
-    console.log('QR TOKEN:', qrToken);
+      console.log('QR JOB NUMBER:', jobNumber);
+      console.log('QR TOKEN:', qrToken);
 
-    setScannedQR(qrToken);
-    setPublicPage('history');
-    return;
+      setScannedQR(qrToken);
+      setPublicPage('status');
+      return;
+    }
+  } catch {
+    // ไม่ใช่ URL
   }
 
-  console.log('QR DIRECT VALUE:', value);
+  // QR เป็น token โดยตรง
+  console.log('QR DIRECT TOKEN:', value);
 
-  setScannedQR(value);
-  setPublicPage('history');
+  setScannedQR(value.trim());
+  setPublicPage('status');
 }}
   />
   );
@@ -309,11 +318,11 @@ if (publicPage === 'history') {
   return (
   <>
     <button
-      onClick={testSupabase}
-      className="fixed bottom-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-lg"
-    >
-      Test Database
-    </button>
+  onClick={testSupabase}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Test Database
+</button>
 
     <HomePage
       onCheckStatus={() => setPublicPage('status')}
