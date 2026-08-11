@@ -33,11 +33,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
 
       manifest: {
-        name: 'Mini Repair',
-        short_name: 'Mini Repair',
-        description: 'ระบบตรวจสอบสถานะงานซ่อม Mini Repair',
+        name: 'Mini Repair Admin',
+        short_name: 'Mini Repair Admin',
+        description: 'ระบบจัดการหลังบ้าน Mini Repair',
 
-        start_url: '/',
+        start_url: '/admin',
         scope: '/',
         display: 'standalone',
 
@@ -50,7 +50,7 @@ export default defineConfig({
             sizes: '192x192',
             type: 'image/png',
           },
-          {
+        {
             src: '/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
