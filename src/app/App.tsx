@@ -34,14 +34,16 @@ const pageTitles: Record<AdminPage, string> = {
   reports:            'รายงาน',
   settings:           'ตั้งค่า',
 };
-
+const getInitialSection = (): 'public' | 'login' | 'admin' => {
+  return window.location.pathname === '/admin'
+    ? 'login'
+    : 'public';
+};
 export default function App() {
   
-
-
-  const [section, setSection] = useState<
-    'public' | 'login' | 'admin'
-  >('public');
+const [section, setSection] = useState<
+  'public' | 'login' | 'admin'
+>(getInitialSection);
 
   const [publicPage, setPublicPage] = useState<
   'home' | 'status' | 'warranty' | 'scanner' | 'history'
@@ -304,19 +306,27 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
 };
 
   const handleLogin = (user: AdminUser) => {
-    setCurrentUser(user);
-    setSection('admin');
-    setAdminPage('dashboard');
-  };
+  setCurrentUser(user);
+  setSection('admin');
+  setAdminPage('dashboard');
+
+  window.history.pushState({}, '', '/admin');
+};
 
   const handleLogout = () => {
-    setCurrentUser(null);
-    setSection('public');
-    setPublicPage('home');
-  };
+  setCurrentUser(null);
+  setSection('public');
+  setPublicPage('home');
+
+  window.history.pushState({}, '', '/');
+};
 
   const goAdmin = () => setSection('login');
-  const goPublic = () => { setSection('public'); setPublicPage('home'); };
+  const goPublic = () => {
+  setSection('public');
+  setPublicPage('home');
+  window.history.pushState({}, '', '/');
+};
 
   const handleScanQR = () => {
   setSection('public');
@@ -419,12 +429,10 @@ if (publicPage === 'history') {
   <>
 
     <HomePage
-      onCheckStatus={() => setPublicPage('status')}
-      onCheckWarranty={() => setPublicPage('warranty')}
-      onAdminLogin={goAdmin}
-      onScanQR={handleScanQR}
-      onGoAdmin={goAdmin}
-    />
+  onCheckStatus={() => setPublicPage('status')}
+  onCheckWarranty={() => setPublicPage('warranty')}
+  onScanQR={handleScanQR}
+/>
   </>
 );
 }

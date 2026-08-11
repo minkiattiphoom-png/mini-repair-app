@@ -3,9 +3,7 @@ import MiniRepairLogo from "../components/MiniRepairLogo";
 interface Props {
   onScanQR: () => void;
   onCheckStatus: () => void;
-  onGoAdmin: () => void;
   onCheckWarranty: () => void;
-  onAdminLogin: () => void;
 }
 
 const features = [
@@ -16,7 +14,7 @@ const features = [
   { icon: Heart, title: 'บริการด้วยใจ', desc: 'ใส่ใจลูกค้าทุกขั้นตอน บริการเป็นกันเอง', color: '#2563EB' },
 ];
 
-export default function HomePage({ onScanQR, onCheckStatus, onGoAdmin }: Props) {
+export default function HomePage({ onScanQR, onCheckStatus }: Props) {
   return (
     <div className="min-h-screen font-[Sarabun,sans-serif]" style={{ background: 'linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 30%, #EFF6FF 60%, #F8FAFC 100%)' }}>
 
@@ -37,12 +35,6 @@ export default function HomePage({ onScanQR, onCheckStatus, onGoAdmin }: Props) 
         </div>
       </div>
     </div>
-          <button
-            onClick={onGoAdmin}
-            className="text-xs text-muted-foreground border border-border px-3 py-1.5 rounded-full hover:bg-muted transition-colors"
-          >
-            เข้าระบบ
-          </button>
         </div>
       </header>
 
