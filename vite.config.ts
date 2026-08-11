@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -24,20 +25,46 @@ export default defineConfig({
   plugins: [
     figmaAssetResolver(),
 
-    // The React and Tailwind plugins are both required for Make,
-    // even if Tailwind is not being actively used – do not remove them
     react(),
+
     tailwindcss(),
+
+    VitePWA({
+      registerType: 'autoUpdate',
+
+      manifest: {
+        name: 'Mini Repair',
+        short_name: 'Mini Repair',
+        description: 'ระบบตรวจสอบสถานะงานซ่อม Mini Repair',
+
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+
+        theme_color: '#2563EB',
+        background_color: '#EFF6FF',
+
+        icons: [
+          {
+            src: '/icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
+    }),
   ],
 
   resolve: {
     alias: {
-      // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
     },
   },
 
-  // File types to support raw imports.
-  // Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })

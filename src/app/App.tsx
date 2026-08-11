@@ -62,6 +62,59 @@ const [section, setSection] = useState<
   const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
 
   useEffect(() => {
+  const checkAuth = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      setCurrentUser({
+        name:
+          session.user.user_metadata?.name ||
+          session.user.email?.split('@')[0] ||
+          'Admin',
+        role: 'admin',
+        email: session.user.email || '',
+      });
+
+      setSection('admin');
+      return;
+    }
+
+    if (window.location.pathname === '/admin') {
+      setSection('login');
+    }
+  };
+
+  checkAuth();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) {
+      setCurrentUser({
+        name:
+          session.user.user_metadata?.name ||
+          session.user.email?.split('@')[0] ||
+          'Admin',
+        role: 'admin',
+        email: session.user.email || '',
+      });
+
+      setSection('admin');
+    } else {
+      setCurrentUser(null);
+      setSection('public');
+      setPublicPage('home');
+    }
+  });
+
+  return () => {
+    subscription.unsubscribe();
+  };
+}, []);
+
+  useEffect(() => {
   const load = async () => {
     const { data, error } = await supabase
       .from('repair_jobs')
@@ -313,15 +366,24 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   window.history.pushState({}, '', '/admin');
 };
 
-  const handleLogout = () => {
+const handleLogout = async () => {
+  const { error } = await supabase.auth.signOut({
+    scope: 'local',
+  });
+
+  if (error) {
+    console.error('Logout error:', error);
+    return;
+  }
+
   setCurrentUser(null);
   setSection('public');
   setPublicPage('home');
+  setAdminPage('dashboard');
 
   window.history.pushState({}, '', '/');
 };
 
-  const goAdmin = () => setSection('login');
   const goPublic = () => {
   setSection('public');
   setPublicPage('home');
