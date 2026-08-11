@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/repair/(.*)",
-      "destination": "/"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
