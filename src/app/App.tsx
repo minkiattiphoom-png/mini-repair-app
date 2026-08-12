@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { RepairJob, RepairStatus, AdminPage, AdminUser } from './types';
+import type { RepairJob, RepairStatus, AdminPage, AdminUser, Customer } from './types';
 import { mockRepairJobs, mockCustomers } from './data';
 
 import Sidebar from './components/Sidebar';
@@ -170,7 +170,8 @@ const [section, setSection] = useState<
 
   load();
 }, []);
-  const [customers] = useState(mockCustomers);
+
+const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
 
 const addJob = async (job: RepairJob): Promise<boolean> => {
   const { data, error } = await supabase
@@ -180,7 +181,7 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
       qr_token: job.qrToken,
 
       customer_name: job.customerName,
-      phone: job.phone,
+      phone: job.phone, 
 
       device: job.device,
       brand: job.brand,
@@ -358,6 +359,43 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
   return true;
 };
 
+const addCustomer = async (
+  customer: Omit<Customer, 'id' | 'createdAt'>
+): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('customers')
+    .insert({
+      name: customer.name,
+      phone: customer.phone,
+      email: customer.email || null,
+      line_id: customer.lineId || null,
+      address: customer.address || null,
+      notes: customer.notes || null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Add customer error:', error);
+    alert(`บันทึกลูกค้าไม่สำเร็จ: ${error.message}`);
+    return false;
+  }
+
+  const newCustomer: Customer = {
+    id: data.id,
+    name: data.name,
+    phone: data.phone,
+    email: data.email ?? '',
+    lineId: data.line_id ?? '',
+    address: data.address ?? '',
+    notes: data.notes ?? '',
+    createdAt: data.created_at,
+  };
+
+  setCustomers(prev => [newCustomer, ...prev]);
+
+  return true;
+};
   const handleLogin = (user: AdminUser) => {
   setCurrentUser(user);
   setSection('admin');
@@ -558,8 +596,14 @@ if (publicPage === 'history') {
         );
 
       case 'customers':
-      case 'customer-profile':
-        return <CustomersPage customers={customers} jobs={jobs} />;
+case 'customer-profile':
+  return (
+    <CustomersPage
+      customers={customers}
+      jobs={jobs}
+      onAddCustomer={addCustomer}
+    />
+  );
 
       case 'qrcode':
         return <QRCodeAdminPage jobs={jobs} />;

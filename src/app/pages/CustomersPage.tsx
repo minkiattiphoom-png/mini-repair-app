@@ -5,7 +5,11 @@ import {
 import type { Customer, RepairJob } from '../types';
 import StatusBadge from '../components/StatusBadge';
 
-interface Props { customers: Customer[]; jobs: RepairJob[] }
+interface Props {
+  customers: Customer[];
+  jobs: RepairJob[];
+  onAddCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<boolean>;
+}
 
 function CustomerProfile({ c, jobs, onBack }: { c: Customer; jobs: RepairJob[]; onBack: () => void }) {
   const cJobs = jobs.filter(j => j.customerId === c.id || j.customerName === c.name);
@@ -92,10 +96,68 @@ function CustomerProfile({ c, jobs, onBack }: { c: Customer; jobs: RepairJob[]; 
   );
 }
 
-export default function CustomersPage({ customers, jobs }: Props) {
+export default function CustomersPage({
+  customers,
+  jobs,
+  onAddCustomer,
+}: Props) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Customer | null>(null);
+const [showAddForm, setShowAddForm] = useState(false);
 
+const [form, setForm] = useState({
+  name: '',
+  phone: '',
+  email: '',
+  lineId: '',
+  address: '',
+  notes: '',
+});
+
+const [saving, setSaving] = useState(false);
+const [error, setError] = useState('');
+const handleAddCustomer = async () => {
+  setError('');
+
+  if (!form.name.trim()) {
+    setError('กรุณากรอกชื่อลูกค้า');
+    return;
+  }
+
+  if (!form.phone.trim()) {
+    setError('กรุณากรอกเบอร์โทรศัพท์');
+    return;
+  }
+
+  setSaving(true);
+
+  const success = await onAddCustomer({
+    name: form.name.trim(),
+    phone: form.phone.trim(),
+    email: form.email.trim(),
+    lineId: form.lineId.trim(),
+    address: form.address.trim(),
+    notes: form.notes.trim(),
+  });
+
+  setSaving(false);
+
+  if (!success) {
+    setError('ไม่สามารถบันทึกลูกค้าได้');
+    return;
+  }
+
+  setForm({
+    name: '',
+    phone: '',
+    email: '',
+    lineId: '',
+    address: '',
+    notes: '',
+  });
+
+  setShowAddForm(false);
+};
   if (selected) return <CustomerProfile c={selected} jobs={jobs} onBack={() => setSelected(null)} />;
 
   const filtered = customers.filter(c =>
@@ -106,11 +168,180 @@ export default function CustomersPage({ customers, jobs }: Props) {
     <div className="p-4 lg:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div><h2 className="text-xl font-bold text-foreground">ลูกค้า</h2><p className="text-sm text-muted-foreground">{customers.length} คน</p></div>
-        <button className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary/90 shadow-sm transition-colors">
-          <Plus className="w-4 h-4" /><span className="hidden sm:inline">เพิ่มลูกค้า</span>
-        </button>
+        <button
+  onClick={() => {
+    setError('');
+    setShowAddForm(true);
+  }}
+  className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary/90 shadow-sm transition-colors"
+>
+  <Plus className="w-4 h-4" />
+  <span className="hidden sm:inline">เพิ่มลูกค้า</span>
+</button>
+      </div>
+{showAddForm && (
+  <div className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="font-bold text-foreground">
+          เพิ่มลูกค้าใหม่
+        </h3>
+
+        <p className="text-xs text-muted-foreground mt-1">
+          ข้อมูลลูกค้าจะถูกบันทึกลงฐานข้อมูล
+        </p>
       </div>
 
+      <button
+        onClick={() => setShowAddForm(false)}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        ปิด
+      </button>
+    </div>
+
+    {error && (
+      <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
+        {error}
+      </div>
+    )}
+
+    <div className="grid sm:grid-cols-2 gap-4">
+
+      <div>
+        <label className="block text-xs font-medium mb-1.5">
+          ชื่อลูกค้า *
+        </label>
+
+        <input
+          value={form.name}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="ชื่อลูกค้า"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1.5">
+          เบอร์โทร *
+        </label>
+
+        <input
+          value={form.phone}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              phone: e.target.value,
+            }))
+          }
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="0812345678"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1.5">
+          Email
+        </label>
+
+        <input
+          type="email"
+          value={form.email}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              email: e.target.value,
+            }))
+          }
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="customer@email.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1.5">
+          LINE ID
+        </label>
+
+        <input
+          value={form.lineId}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              lineId: e.target.value,
+            }))
+          }
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="LINE ID"
+        />
+      </div>
+
+      <div className="sm:col-span-2">
+        <label className="block text-xs font-medium mb-1.5">
+          ที่อยู่
+        </label>
+
+        <textarea
+          value={form.address}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              address: e.target.value,
+            }))
+          }
+          rows={2}
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+          placeholder="ที่อยู่ลูกค้า"
+        />
+      </div>
+
+      <div className="sm:col-span-2">
+        <label className="block text-xs font-medium mb-1.5">
+          หมายเหตุ
+        </label>
+
+        <textarea
+          value={form.notes}
+          onChange={e =>
+            setForm(prev => ({
+              ...prev,
+              notes: e.target.value,
+            }))
+          }
+          rows={2}
+          className="w-full border border-border rounded-xl px-3 py-2.5 bg-background outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+          placeholder="หมายเหตุเพิ่มเติม"
+        />
+      </div>
+
+    </div>
+
+    <div className="flex justify-end gap-2 pt-2">
+
+      <button
+        onClick={() => setShowAddForm(false)}
+        disabled={saving}
+        className="px-4 py-2.5 rounded-xl border border-border text-sm"
+      >
+        ยกเลิก
+      </button>
+
+      <button
+        onClick={handleAddCustomer}
+        disabled={saving}
+        className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
+      >
+        {saving ? 'กำลังบันทึก...' : 'บันทึกลูกค้า'}
+      </button>
+
+    </div>
+  </div>
+)}
       <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2.5">
         <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="ค้นหาชื่อ เบอร์ หรืออีเมล..."
