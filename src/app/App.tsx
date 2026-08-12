@@ -234,20 +234,14 @@ const addJob = async (job: RepairJob): Promise<boolean> => {
     .single();
 
   if (error) {
-  console.error('CREATE ERROR FULL:', error);
-  console.error('CREATE ERROR MESSAGE:', error.message);
-  console.error('CREATE ERROR DETAILS:', error.details);
-  console.error('CREATE ERROR HINT:', error.hint);
-  console.error('CREATE ERROR CODE:', error.code);
+  console.error('=== ADD CUSTOMER ERROR ===');
+  console.error('FULL ERROR:', error);
+  console.error('CODE:', error.code);
+  console.error('MESSAGE:', error.message);
+  console.error('DETAILS:', error.details);
+  console.error('HINT:', error.hint);
 
-  alert(
-    `บันทึกงานไม่สำเร็จ\n\n` +
-    `Code: ${error.code}\n` +
-    `Message: ${error.message}\n` +
-    `Details: ${error.details ?? ''}\n` +
-    `Hint: ${error.hint ?? ''}`
-  );
-
+  alert(`บันทึกลูกค้าไม่สำเร็จ: ${error.message}`);
   return false;
 }
 
@@ -389,6 +383,15 @@ const urlQRToken = repairUrlMatch?.[2] ?? null;
 const addCustomer = async (
   customer: Omit<Customer, 'id' | 'createdAt'>
 ): Promise<boolean> => {
+  console.log('ADD CUSTOMER CALLED:', customer);
+   console.log('Customer data:', customer);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  console.log('Auth session:', session);
+  console.log('User:', session?.user);
   const { data, error } = await supabase
     .from('customers')
     .insert({
@@ -623,7 +626,7 @@ if (publicPage === 'history') {
         );
 
       case 'customers':
-case 'customer-profile':
+      case 'customer-profile':
   return (
     <CustomersPage
       customers={customers}
