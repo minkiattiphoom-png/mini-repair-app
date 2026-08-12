@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { RepairJob, RepairStatus, AdminPage, AdminUser, Customer } from './types';
-import { mockRepairJobs, mockCustomers } from './data';
+import { mockCustomers } from './data';
 
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
@@ -59,7 +59,9 @@ const [section, setSection] = useState<
 
   const [scannedQR, setScannedQR] = useState<string | null>(null);
 
-  const [jobs, setJobs] = useState<RepairJob[]>(mockRepairJobs);
+  const [jobs, setJobs] = useState<RepairJob[]>([]);
+  
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
   const checkAuth = async () => {
@@ -169,9 +171,34 @@ const [section, setSection] = useState<
   };
 
   load();
+  const loadCustomers = async () => {
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Load customers error:', error);
+    return;
+  }
+
+  if (!data) return;
+
+  const mappedCustomers: Customer[] = data.map(customer => ({
+    id: customer.id,
+    name: customer.name,
+    phone: customer.phone,
+    email: customer.email ?? '',
+    lineId: customer.line_id ?? '',
+    address: customer.address ?? '',
+    notes: customer.notes ?? '',
+    createdAt: customer.created_at,
+  }));
+
+  setCustomers(mappedCustomers);
+};
 }, []);
 
-const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
 
 const addJob = async (job: RepairJob): Promise<boolean> => {
   const { data, error } = await supabase
