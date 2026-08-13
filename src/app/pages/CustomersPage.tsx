@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import {
-  Search,Plus,Phone,Mail,ChevronRight,ArrowLeft,ClipboardList,MessageSquare,type LucideIcon,
+import {Search,Plus,Phone,Mail,ChevronRight,ArrowLeft,ClipboardList,MessageSquare,type LucideIcon,
 } from 'lucide-react';
 import type { Customer, RepairJob } from '../types';
 import StatusBadge from '../components/StatusBadge';
@@ -103,9 +102,9 @@ export default function CustomersPage({
 }: Props) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Customer | null>(null);
-const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
-const [form, setForm] = useState({
+  const [form, setForm] = useState({
   name: '',
   phone: '',
   email: '',

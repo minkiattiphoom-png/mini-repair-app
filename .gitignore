@@ -2,3 +2,6 @@ node_modules
 dist
 .env
 .env.local
+
+# Supabase CLI temporary files
+supabase/.temp/
